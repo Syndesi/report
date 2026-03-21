@@ -2,3 +2,4 @@ notebooks/__marimo__
 htmlcov
 .venv
 .coverage
+.env

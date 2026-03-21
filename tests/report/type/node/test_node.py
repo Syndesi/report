@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pytest
 from pydantic import ValidationError
-
 from rsssignalweaver.type.node import Node
 
 

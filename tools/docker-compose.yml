@@ -8,6 +8,8 @@ services:
       dockerfile: tools/Dockerfile
       context: ..
       target: dev
+    env_file:
+      - ../.env
     tty: true
     volumes:
       - ..:/app
