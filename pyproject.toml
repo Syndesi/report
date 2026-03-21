@@ -1,0 +1,60 @@
+[project]
+name = "report"
+version = "0.1.0"
+requires-python = ">=3.13"
+
+dependencies = [
+    "structlog",
+    "marimo",
+    "numpy",
+    "pandas",
+    "pydantic>=2.12.5",
+]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.13.4",
+    "pip>=26.0.1",
+    "pytest",
+    "ruff",
+    "ty",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle (error)
+    "F", # pyflakes
+    "B", # bugbear
+    "B9",
+    "C4", # flake8-comprehensions
+    "SIM", # flake8-simplify
+    "I", # isort
+    "UP", # pyupgrade
+    "PIE", # flake8-pie
+    "PGH", # pygrep-hooks
+    "PYI", # flake8-pyi
+    "RUF",
+    "S602", # flake8-bandit: subprocess-popen-with-shell-equals-true
+]
+
+ignore = [
+    # Leave it to the formatter to split long lines and
+    # the judgement of all of us.
+    "E501"
+]
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+combine-as-imports = true
+
+[tool.ruff.lint.per-file-ignores]
+"notebooks/**.py" = ["B018"]

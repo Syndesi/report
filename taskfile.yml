@@ -1,0 +1,37 @@
+version: '3'
+
+tasks:
+
+  dev:build:
+    cmds:
+      - docker compose -f ./tools/docker-compose.yml build
+
+  dev:up:
+    cmds:
+      - docker compose -f ./tools/docker-compose.yml up -d  --remove-orphans
+
+  dev:down:
+    cmds:
+      - docker compose -f ./tools/docker-compose.yml down
+
+  dev:cli:
+    cmds:
+      - docker compose -f ./tools/docker-compose.yml exec app /bin/bash
+
+  dev:install:
+    cmds:
+      - docker compose -f ./tools/docker-compose.yml exec app uv sync
+
+  dev:marimo:
+    cmds:
+      - docker compose -f ./tools/docker-compose.yml exec app uv run -m marimo edit --host 0.0.0.0 notebooks
+
+  dev:test:
+    cmds:
+      - docker compose -f ./tools/docker-compose.yml exec app uv run -m coverage run -m pytest --no-header
+      - docker compose -f ./tools/docker-compose.yml exec app uv run -m coverage html
+
+  dev:cs:
+    cmds:
+      - docker compose -f ./tools/docker-compose.yml exec app uv run -m ruff check --fix
+      - docker compose -f ./tools/docker-compose.yml exec app uv run -m ruff format

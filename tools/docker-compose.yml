@@ -1,0 +1,16 @@
+name: report
+
+services:
+
+  app:
+    container_name: report
+    build:
+      dockerfile: tools/Dockerfile
+      context: ..
+      target: dev
+    tty: true
+    volumes:
+      - ..:/app
+    working_dir: /app
+    ports:
+      - 2718:2718
