@@ -24,7 +24,11 @@ tasks:
 
   dev:marimo:
     cmds:
-      - docker compose -f ./tools/docker-compose.yml exec app uv run -m marimo edit --host 0.0.0.0 notebooks
+      - docker compose -f ./tools/docker-compose.yml exec app uv run -m marimo edit --no-token --host 0.0.0.0 notebooks
+
+  dev:marimo-run:
+    cmds:
+      - docker compose -f ./tools/docker-compose.yml exec app uv run -m marimo run --no-token --host 0.0.0.0 notebooks
 
   dev:test:
     cmds:

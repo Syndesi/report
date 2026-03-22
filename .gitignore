@@ -1,4 +1,5 @@
-notebooks/__marimo__
+notebooks/__marimo__/*
+!notebooks/__marimo__/assets
 htmlcov
 .venv
 .coverage
