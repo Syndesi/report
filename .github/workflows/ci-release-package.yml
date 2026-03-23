@@ -6,7 +6,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }} | tr '[:upper:]' '[:lower:]'
 
 jobs:
 
@@ -49,6 +48,8 @@ jobs:
           retention-days: 7
       - name: Push Docker image
         run: |
-          DOCKER_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
-          docker tag report:prod "$DOCKER_TAG"
-          docker push "$DOCKER_TAG"
+          IMAGE="$(echo "${{ github.repository }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')"
+          TAG="$(echo "${{ github.ref_name }}" | tr '[:upper:]' '[:lower:]' | tr '/' '-')"
+          echo "${IMAGE}:${TAG}"
+          docker tag report:prod "${IMAGE}:${TAG}"
+          docker push "${IMAGE}:${TAG}"
