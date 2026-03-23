@@ -58,11 +58,11 @@ tasks:
         NEW_VERSION="$(docker run usvc/semver:latest bump {{.TYPE}} $OLD_VERSION | tr -d '\r')"
         echo "new version: $NEW_VERSION ({{.TYPE}})"
         sed -i "s/version = \"$OLD_VERSION\"/version = \"$NEW_VERSION\"/" pyproject.toml
-#        git add .
-#        git commit -m "release $NEW_VERSION"
-#        git push origin
-#        git tag "$NEW_VERSION"
-#        git push --tags
+        git add .
+        git commit -m "release $NEW_VERSION"
+        git push origin
+        git tag "$NEW_VERSION"
+        git push origin tag "$NEW_VERSION"
 
   release:patch:
     deps:
