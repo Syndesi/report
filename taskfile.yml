@@ -44,14 +44,21 @@ tasks:
     internal: true
     cmds:
       - |
+        BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        if [[ "$BRANCH" != "main" ]]; then
+          echo "Error: Not on branch 'main' (current: $BRANCH)" >&2
+          exit 1
+        fi
         OLD_VERSION="$(cat pyproject.toml | dasel -i toml "project.version" -o json | jq -r)"
         echo "old version: $OLD_VERSION"
         NEW_VERSION="$(docker run usvc/semver:latest bump {{.TYPE}} $OLD_VERSION | tr -d '\r')"
         echo "new version: $NEW_VERSION ({{.TYPE}})"
         sed -i "s/version = \"$OLD_VERSION\"/version = \"$NEW_VERSION\"/" pyproject.toml
-        git tag "$NEW_VERSION"
-        git push origin
-        git push --tags
+#        git add .
+#        git commit -m "release $NEW_VERSION"
+#        git push origin
+#        git tag "$NEW_VERSION"
+#        git push --tags
 
   release:patch:
     deps:
