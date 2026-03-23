@@ -25,7 +25,10 @@ COPY pyproject.toml .
 RUN uv sync --no-dev
 
 COPY src ./src
+COPY notebooks ./notebooks
 
 RUN uv pip install -e .
 
-CMD ["prefect", "worker", "start", "--pool", "signalweaver-pool"]
+EXPOSE 2718
+
+CMD ["uv", "run", "--no-dev", "-m", "marimo", "run", "--no-token", "--host", "0.0.0.0", "notebooks"]

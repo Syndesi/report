@@ -1,0 +1,90 @@
+name: Test
+
+on:
+  - push
+
+jobs:
+
+  yml-lint:
+    runs-on: ubuntu-latest
+    name: 'YML lint'
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker pull cytopia/yamllint
+      - run: docker run --rm -t -v $(pwd):/data cytopia/yamllint --config-file=tests/.yamllint .
+
+  markdown-lint:
+    runs-on: ubuntu-latest
+    name: 'Markdown lint'
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker pull tmknom/markdownlint
+      - run: docker run --rm -v $(pwd):/work tmknom/markdownlint '**/*.md' --config tests/.markdownlintrc --ignore CHANGELOG.md --ignore .venv
+
+  build-docker-image:
+    runs-on: ubuntu-latest
+    name: 'Build Docker Image'
+    timeout-minutes: 20
+    needs:
+      - yml-lint
+      - markdown-lint
+    steps:
+      - uses: actions/checkout@v5
+      - name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          version: latest
+      - name: Build Docker image - dev
+        run: |
+          docker buildx build \
+            --target dev \
+            --cache-from type=gha,scope=dev \
+            --cache-to type=gha,mode=max,scope=dev \
+            --load \
+            -t report:dev \
+            -f ./tools/Dockerfile \
+            .
+          docker save report:dev | gzip > report-dev.tar.gz
+      - name: Build Docker image - prod
+        run: |
+          docker buildx build \
+            --target prod \
+            --cache-from type=gha,scope=prod \
+            --cache-to type=gha,mode=max,scope=prod \
+            --load \
+            -t report:prod \
+            -f ./tools/Dockerfile \
+            .
+          docker save report:prod | gzip > report-prod.tar.gz
+      - uses: actions/upload-artifact@v6
+        with:
+          name: docker-image-report-dev
+          path: report-dev.tar.gz
+          retention-days: 7
+      - uses: actions/upload-artifact@v6
+        with:
+          name: docker-image-report-prod
+          path: report-prod.tar.gz
+          retention-days: 7
+
+  cs-lint:
+    runs-on: ubuntu-latest
+    name: 'CS Lint'
+    timeout-minutes: 5
+    needs:
+      - build-docker-image
+    steps:
+      - uses: actions/checkout@v5
+      - run: mkdir -p /tmp/docker
+      - uses: actions/download-artifact@v8
+        with:
+          name: docker-image-report-dev
+          path: /tmp/docker
+      - name: CS Lint
+        run: |
+          docker load < /tmp/docker/report-dev.tar.gz
+          docker run -v $(pwd):/app --user "$(id -u):$(id -g)" report:dev sh -c "uv sync --dev && uv run -m ruff check && uv run -m ruff format --check"
