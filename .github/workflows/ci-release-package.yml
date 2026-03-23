@@ -48,7 +48,7 @@ jobs:
           retention-days: 7
       - name: Push Docker image
         run: |
-          IMAGE="$(echo "${{ github.repository }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')"
+          IMAGE="$(echo "${{ env.REGISTRY }}/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
           TAG="$(echo "${{ github.ref_name }}" | tr '[:upper:]' '[:lower:]' | tr '/' '-')"
           echo "${IMAGE}:${TAG}"
           docker tag report:prod "${IMAGE}:${TAG}"
