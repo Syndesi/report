@@ -39,3 +39,34 @@ tasks:
     cmds:
       - docker compose -f ./tools/docker-compose.yml exec app uv run -m ruff check --fix
       - docker compose -f ./tools/docker-compose.yml exec app uv run -m ruff format
+
+  release:
+    internal: true
+    cmds:
+      - |
+        OLD_VERSION="$(cat pyproject.toml | dasel -i toml "project.version" -o json | jq -r)"
+        echo "old version: $OLD_VERSION"
+        NEW_VERSION="$(docker run usvc/semver:latest bump {{.TYPE}} $OLD_VERSION | tr -d '\r')"
+        echo "new version: $NEW_VERSION ({{.TYPE}})"
+        sed -i "s/version = \"$OLD_VERSION\"/version = \"$NEW_VERSION\"/" pyproject.toml
+        git tag "$NEW_VERSION"
+        git push origin
+        git push --tags
+
+  release:patch:
+    deps:
+      - task: release
+        vars:
+          TYPE: "patch"
+
+  release:minor:
+    deps:
+      - task: release
+        vars:
+          TYPE: "minor"
+
+  release:major:
+    deps:
+      - task: release
+        vars:
+          TYPE: "major"
