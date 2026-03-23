@@ -49,6 +49,10 @@ tasks:
           echo "Error: Not on branch 'main' (current: $BRANCH)" >&2
           exit 1
         fi
+        if [[ -n "$(git status --porcelain)" ]]; then
+          echo "Error: Uncommitted changes detected" >&2
+          exit 1
+        fi
         OLD_VERSION="$(cat pyproject.toml | dasel -i toml "project.version" -o json | jq -r)"
         echo "old version: $OLD_VERSION"
         NEW_VERSION="$(docker run usvc/semver:latest bump {{.TYPE}} $OLD_VERSION | tr -d '\r')"
