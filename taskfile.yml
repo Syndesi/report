@@ -4,11 +4,11 @@ tasks:
 
   dev:build:
     cmds:
-      - docker compose -f ./tools/docker-compose.yml build
+      - docker compose -f ./tools/docker-compose.yml build --no-cache
 
   dev:up:
     cmds:
-      - docker compose -f ./tools/docker-compose.yml up -d  --remove-orphans
+      - docker compose -f ./tools/docker-compose.yml up -d --remove-orphans
 
   dev:down:
     cmds:
