@@ -37,3 +37,14 @@ RUN uv sync --no-dev && \
 EXPOSE 2718
 
 CMD ["uv", "run", "--no-dev", "-m", "marimo", "run", "--no-token", "--host", "0.0.0.0", "notebooks"]
+
+FROM base AS test
+
+COPY . .
+
+RUN chown -R worker:worker /app && \
+    chmod -R 755 /app
+
+USER worker
+RUN uv sync && \
+    uv pip install -e .
