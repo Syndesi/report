@@ -71,4 +71,4 @@ jobs:
       - name: CS Lint
         run: |
           docker load < /tmp/docker/report-test.tar.gz
-          docker run -v $(pwd):/app --user worker report:test sh -c "uv run -m ruff check && uv run -m ruff format --check"
+          docker run --user worker report:test sh -c "uv run -m ruff check && uv run -m ruff format --check"
