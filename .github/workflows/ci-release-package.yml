@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }} | tr '[:upper:]' '[:lower:]'
 
 jobs:
 
@@ -31,7 +31,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build Docker image - prod
+      - name: Build Docker image
         run: |
           docker buildx build \
             --target prod \
@@ -39,7 +39,16 @@ jobs:
             -t report:prod \
             -f ./tools/Dockerfile \
             .
+      - name: Save Docker image
+        run: |
           docker save report:prod | gzip > report-prod.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-report-prod
+          path: report-prod.tar.gz
+          retention-days: 7
+      - name: Push Docker image
+        run: |
           DOCKER_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
           docker tag report:prod "$DOCKER_TAG"
           docker push "$DOCKER_TAG"
